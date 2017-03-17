@@ -1,5 +1,5 @@
-import React from 'react';
-import Knob from 'react-canvas-knob';
+import React from "react";
+import Knob from "./Knob";
 
 export default class App extends React.Component {
 
@@ -8,18 +8,17 @@ export default class App extends React.Component {
     this.state = {knobVal: 0};
   }
 
-  render() {
+  render () {
     return (
-      <div style={{textAlign: 'center'}}>
+      <div style={{textAlign: "center", fontFamily: "sans-serif"}}>
         <h1>Microkorg</h1>
         <Knob
-          title="Mod Wheel"
-          width={30}
+          label="Mod Wheel"
           value={this.state.knobVal}
           onChange={(val) => this.setState({knobVal: val})}
-          onChangeEnd={(val) => console.log("Ended at val", val)}
         />
       </div>
     );
   }
 }
+

@@ -30,7 +30,7 @@ export default function SynthKnob ({label, value, onChange}) {
 SynthKnob.propTypes = {
   label: PropTypes.string.isRequired,
   value: PropTypes.number.isRequired,
-  onChange: PropTypes.string.isRequired,
+  onChange: PropTypes.func.isRequired,
 }
 
 const unselectable = {

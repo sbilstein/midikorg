@@ -1,6 +1,6 @@
 # midikorg
 
-This is the shell to an electron app beign developed to control a MICROKORG synthesizer. 
+This is the shell to an electron app being developed to control a MICROKORG synthesizer. 
 
 ## Getting started
 

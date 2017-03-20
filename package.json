@@ -1,19 +1,16 @@
 {
-  "name": "electron-quick-start",
-  "version": "1.0.0",
+  "name": "midikorg",
+  "version": "0.0.1",
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
     "build": "webpack --progress --colors",
-    "watch": "webpack --progress --colors --watch"
+    "watch": "webpack --progress --colors --watch",
+    "start": "electron ."
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "Electron"
   ],
   "author": "GitHub",
   "license": "CC0-1.0",

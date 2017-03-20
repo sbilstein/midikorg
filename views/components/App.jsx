@@ -3,6 +3,27 @@ import Knob from "./Knob";
 import WebMidi from 'webmidi';
 
 export default class App extends React.Component {
+  constructor (props) {
+    super(props);
+    // Binding makes the correct 'this' reference in the callback's context
+    this.selectOutput = this.selectOutput.bind(this);
+    this.setCutoff = this.setCutoff.bind(this);
+
+    this.state = {
+      knobVal: 0,
+      currentOutput: null,
+      availableOutputs: []
+    };
+  }
+
+  componentDidMount() {
+    this.initMidi();
+  }
+
+  componentWillUnmount() {
+    WebMidi.disable();
+  }
+
   initMidi () {
     var self = this
     WebMidi.enable(function (err) {
@@ -13,20 +34,24 @@ export default class App extends React.Component {
         window.WebMidi = WebMidi;
         console.log("WebMidi enabled!");
         self.setState({
-          availableOutputs: WebMidi.outputs
+          availableOutputs: WebMidi.outputs,
+          currentOutput: WebMidi.outputs[0]
         })
       }
     });
   }
 
-  constructor () {
-    super();
-    this.initMidi();
-    this.state = {
-      knobVal: 0,
-      currentOutput: "",
-      availableOutputs: []
-    };
+  selectOutput(e) {
+    var output = WebMidi.getOutputById(e.target.value);
+    this.setState({
+      currentOutput: output
+    });
+  }
+
+  setCutoff(val) {
+    this.setState({knobVal: val});
+    this.state.currentOutput.sendControlChange("brightness", val, "all");
+
   }
 
   render () {
@@ -36,15 +61,16 @@ export default class App extends React.Component {
           <OutputSelector
             availableOutputs={this.state.availableOutputs}
             currentOutput={this.state.currentOutput}
-            selectOutput={(output) => alert(output)}
+            selectOutput={this.selectOutput}
           />
         </div>
+        <h3> {this.state.currentOutput.name} is connected</h3>
         <div style={{textAlign: "center", fontFamily: "sans-serif"}}>
           <h1>Microkorg</h1>
           <Knob
             label="Mod Wheel"
             value={this.state.knobVal}
-            onChange={(val) => this.setState({knobVal: val})}
+            onChange={this.setCutoff}
           />
         </div>
       </div>
@@ -55,12 +81,12 @@ export default class App extends React.Component {
 function OutputSelector ({availableOutputs, currentOutput, selectOutput}) {
   var outputNames = availableOutputs.map(function(output) {
     return (
-      <option key={output.id}>{output.name}</option>
+      <option key={output.id} value={output.id} >{output.name}</option>
     )
   })
 
   return (
-    <select value={currentOutput} onChange={selectOutput}>
+    <select value={currentOutput.id} onChange={selectOutput}>
       {outputNames}
     </select>
   )

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {PropTypes} from "react";
 import Knob from "./Knob";
 import WebMidi from 'webmidi';
 
@@ -12,46 +12,46 @@ export default class App extends React.Component {
     this.state = {
       knobVal: 0,
       currentOutput: null,
-      availableOutputs: []
+      availableOutputs: [],
     };
   }
 
-  componentDidMount() {
+  componentDidMount () {
     this.initMidi();
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     WebMidi.disable();
   }
 
   initMidi () {
     var self = this
-    WebMidi.enable(function (err) {
+    WebMidi.enable(function(err) {
       if (err) {
         console.log("WebMidi could not be enabled.", err);
       } else {
         // make WebMidi global for easy use in console.
         window.WebMidi = WebMidi;
         console.log("WebMidi enabled!");
+        var currentOutput = WebMidi.outputs.length > 0 ? WebMidi.outputs[0] : null;
         self.setState({
           availableOutputs: WebMidi.outputs,
-          currentOutput: WebMidi.outputs[0]
+          currentOutput,
         })
       }
     });
   }
 
-  selectOutput(e) {
+  selectOutput (e) {
     var output = WebMidi.getOutputById(e.target.value);
     this.setState({
-      currentOutput: output
+      currentOutput: output,
     });
   }
 
-  setCutoff(val) {
+  setCutoff (val) {
     this.setState({knobVal: val});
     this.state.currentOutput.sendControlChange("brightness", val, "all");
-
   }
 
   render () {
@@ -64,7 +64,6 @@ export default class App extends React.Component {
             selectOutput={this.selectOutput}
           />
         </div>
-        <h3> {this.state.currentOutput.name} is connected</h3>
         <div style={{textAlign: "center", fontFamily: "sans-serif"}}>
           <h1>Microkorg</h1>
           <Knob
@@ -85,9 +84,17 @@ function OutputSelector ({availableOutputs, currentOutput, selectOutput}) {
     )
   })
 
+  var currentId = currentOutput ? currentOutput.id : null;
+
   return (
-    <select value={currentOutput.id} onChange={selectOutput}>
+    <select value={currentId} onChange={selectOutput}>
       {outputNames}
     </select>
   )
+}
+
+OutputSelector.propTypes = {
+  availableOutputs: PropTypes.array.isRequired,
+  currentOutput: PropTypes.object,
+  selectOutput: PropTypes.func.isRequired,
 }

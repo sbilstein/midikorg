@@ -3,7 +3,7 @@
 // All of the Node.js APIs are available in this process.
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from '../views/components/App.jsx';
+import App from '../views/components/App';
 
 ReactDOM.render(<App />, document.getElementById('root'));
 

@@ -1,11 +1,12 @@
 {
   "name": "midikorg",
   "version": "0.0.1",
-  "description": "A minimal Electron application",
+  "description": "A Electron app for controlling a microkorg.",
   "main": "main.js",
   "scripts": {
-    "build": "webpack --progress --colors",
+    "build": " yarn lint && webpack --progress --colors",
     "watch": "webpack --progress --colors --watch",
+    "lint": "eslint . --ext .js,.jsx",
     "start": "electron ."
   },
   "repository": "https://github.com/electron/electron-quick-start",

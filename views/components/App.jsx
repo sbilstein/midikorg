@@ -7,12 +7,17 @@ export default class App extends React.Component {
     super(props);
     // Binding makes the correct 'this' reference in the callback's context
     this.selectOutput = this.selectOutput.bind(this);
+    this.selectInput = this.selectInput.bind(this);
+    this.midiRxCC = this.midiRxCC.bind(this);
     this.setCutoff = this.setCutoff.bind(this);
 
     this.state = {
       knobVal: 0,
       currentOutput: null,
       availableOutputs: [],
+      availableInputs: [],
+      inputRx: false,
+      outputTx: false,
     };
   }
 
@@ -36,6 +41,7 @@ export default class App extends React.Component {
         var currentOutput = WebMidi.outputs.length > 0 ? WebMidi.outputs[0] : null;
         self.setState({
           availableOutputs: WebMidi.outputs,
+          availableInputs: WebMidi.inputs,
           currentOutput,
         })
       }
@@ -49,6 +55,20 @@ export default class App extends React.Component {
     });
   }
 
+  selectInput (e) {
+    var input = WebMidi.getInputById(e.target.value);
+    input.addListener('controlchange', "all", this.midiRxCC)
+    this.setState({
+      currentInput: input,
+    });
+  }
+
+  midiRxCC (e) {
+    console.log("RXed " + e);
+    // change Rx to true to cause LED to blink
+    this.setState({inputRx: true});
+  }
+
   setCutoff (val) {
     this.setState({knobVal: val});
     this.state.currentOutput.sendControlChange("brightness", val, "all");
@@ -56,45 +76,75 @@ export default class App extends React.Component {
 
   render () {
     return (
-      <div>
-        <div>
-          <OutputSelector
-            availableOutputs={this.state.availableOutputs}
-            currentOutput={this.state.currentOutput}
-            selectOutput={this.selectOutput}
-          />
-        </div>
-        <div style={{textAlign: "center", fontFamily: "sans-serif"}}>
-          <h1>Microkorg</h1>
-          <Knob
-            label="Mod Wheel"
-            value={this.state.knobVal}
-            onChange={this.setCutoff}
-          />
+      <div className={"container"}>
+        <div className={"row"}>
+          <div style={{textAlign: "center", fontFamily: "sans-serif"}}>
+            <h2>MICROKORG</h2>
+          </div>
+        </div>  
+        <div className={"row"}>
+          <div className={"two columns"}>
+            <h5>A.65</h5>
+            <select>
+              <option>A.65</option>
+            </select>
+            <h5>voice</h5>
+            LOAD / SAVE Buttons
+          </div>
+          <div className={"eight columns"}>
+            <h3>main panel</h3>
+            <Knob
+              label="Cutoff"
+              value={this.state.knobVal}
+              onChange={this.setCutoff}
+            />
+          </div>
+          <div className={"two columns"}>
+            outputs <Indicator isOn={this.state.outputTx}/>
+            <PortSelector
+              availablePorts={this.state.availableOutputs}
+              currentPort={this.state.currentOutput}
+              selectPort={this.selectOutput}
+            />
+            inputs <Indicator isOn={this.state.inputRx}/>
+            <PortSelector
+              availablePorts={this.state.availableInputs}
+              currentPort={this.state.currentInput}
+              selectPort={this.selectInput}
+            />            
+          </div>
         </div>
       </div>
     );
   }
 }
 
-function OutputSelector ({availableOutputs, currentOutput, selectOutput}) {
-  var outputNames = availableOutputs.map(function(output) {
+function PortSelector ({availablePorts, currentPort, selectPort}) {
+  var portNames = availablePorts.map(function(port) {
     return (
-      <option key={output.id} value={output.id} >{output.name}</option>
+      <option key={port.id} value={port.id} >{port.name}</option>
     )
   })
 
-  var currentId = currentOutput ? currentOutput.id : "";
+  var currentId = currentPort ? currentPort.id : "";
 
   return (
-    <select value={currentId} onChange={selectOutput}>
-      {outputNames}
+    <select value={currentId} onChange={selectPort}>
+      {portNames}
     </select>
   )
 }
 
-OutputSelector.propTypes = {
-  availableOutputs: PropTypes.array.isRequired,
-  currentOutput: PropTypes.object,
-  selectOutput: PropTypes.func.isRequired,
+PortSelector.propTypes = {
+  availablePorts: PropTypes.array.isRequired,
+  currentPort: PropTypes.object,
+  selectPort: PropTypes.func.isRequired,
+}
+
+function Indicator({isOn}) {
+  return (
+    <div className={"led"}>
+      <div className={"led-green " + (isOn ? 'led-on' : '')}></div>
+    </div>
+  ) 
 }

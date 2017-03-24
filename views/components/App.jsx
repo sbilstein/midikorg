@@ -84,7 +84,7 @@ function OutputSelector ({availableOutputs, currentOutput, selectOutput}) {
     )
   })
 
-  var currentId = currentOutput ? currentOutput.id : null;
+  var currentId = currentOutput ? currentOutput.id : "";
 
   return (
     <select value={currentId} onChange={selectOutput}>
